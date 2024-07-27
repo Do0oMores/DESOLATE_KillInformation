@@ -1,0 +1,6 @@
+name: DESOLATE_KillInformation
+version: '1.0-SNAPSHOT'
+main: top.mores.KillInformation
+api-version: '1.18'
+authors: [ Mores ]
+description: 击杀信息

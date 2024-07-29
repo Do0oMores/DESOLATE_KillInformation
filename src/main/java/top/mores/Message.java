@@ -8,6 +8,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 public class Message {
     private final NMS nmsUtil;
@@ -17,7 +19,7 @@ public class Message {
     }
 
     /**
-     * @param item 击杀者手上的物品
+     * @param item   击杀者手上的物品
      * @param player 被击杀者
      * @param killer 击杀者
      */
@@ -106,13 +108,37 @@ public class Message {
         return (isBlock ? "block." : "item.") + id.replace(':', '.');
     }
 
-    protected void sendActionbar(Player player,Player killer){
-        String playerName=player.getName();
-        TextComponent actionbar=new TextComponent(playerName);
+    protected void sendActionbar(Player player, Player killer) {
+        String playerName = player.getName();
+        if (checkPlayerTeam(killer) == null && checkPlayerTeam(player) == null) {
+            killer.spigot().sendMessage(ChatMessageType.ACTION_BAR, BuildActionbar(playerName, ChatColor.LIGHT_PURPLE));
+        } else {
+            String teamName = checkPlayerTeam(player);
+            assert teamName != null;
+            if (teamName.equals("red")) {
+                killer.spigot().sendMessage(ChatMessageType.ACTION_BAR, BuildActionbar(playerName, ChatColor.DARK_RED));
+            } else if (teamName.equals("blue")) {
+                killer.spigot().sendMessage(ChatMessageType.ACTION_BAR, BuildActionbar(playerName, ChatColor.DARK_BLUE));
+            }
+        }
+    }
+
+    private String checkPlayerTeam(Player player) {
+        Scoreboard scoreboard = player.getScoreboard();
+        Team team = scoreboard.getEntryTeam(player.getName());
+        if (team != null) {
+            return team.getDisplayName();
+        } else {
+            return null;
+        }
+    }
+
+    private TextComponent BuildActionbar(String playerName, ChatColor color) {
+        TextComponent actionbar = new TextComponent(playerName);
         actionbar.setBold(true);
         actionbar.setItalic(true);
         actionbar.setUnderlined(true);
-        actionbar.setColor(ChatColor.DARK_RED);
-        killer.spigot().sendMessage(ChatMessageType.ACTION_BAR,actionbar);
+        actionbar.setColor(color);
+        return actionbar;
     }
 }

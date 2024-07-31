@@ -14,6 +14,8 @@ import org.bukkit.scoreboard.Team;
 public class Message {
     private final NMS nmsUtil;
 
+    ConfigInformation configInformation=new ConfigInformation();
+
     public Message(NMS nmsUtil) {
         this.nmsUtil = nmsUtil;
     }
@@ -68,7 +70,7 @@ public class Message {
         BaseComponent[] message = builder.create();
 
         // 判断世界
-        boolean onlyWorld = KillInformation.config.getBoolean("只给相同世界的玩家发送信息");
+        boolean onlyWorld = configInformation.getONLY_SAME_WORLD();
         Player[] targetPlayers = onlyWorld ? killer.getWorld().getPlayers().toArray(new Player[0]) : Bukkit.getOnlinePlayers().toArray(new Player[0]);
         for (Player targetPlayer : targetPlayers) {
             targetPlayer.spigot().sendMessage(message);

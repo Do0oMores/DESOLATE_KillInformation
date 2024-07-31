@@ -22,8 +22,8 @@ public class KillListener implements Listener {
             //获取物品
             ItemStack itemStack = killer.getInventory().getItemInMainHand();
             message.SendNormalMessages(itemStack, player, killer);
-            killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1F,1F);
-            message.sendActionbar(player,killer);
+            killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 1F);
+            message.sendActionbar(player, killer);
         }
     }
 

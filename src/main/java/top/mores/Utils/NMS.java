@@ -1,6 +1,7 @@
-package top.mores;
+package top.mores.Utils;
 
 import org.bukkit.inventory.ItemStack;
+import top.mores.KillInformation;
 
 import java.lang.reflect.Method;
 

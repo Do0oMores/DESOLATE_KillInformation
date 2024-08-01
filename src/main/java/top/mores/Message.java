@@ -15,7 +15,7 @@ import top.mores.Utils.NMS;
 public class Message {
     private final NMS nmsUtil;
 
-    ConfigInformation configInformation=new ConfigInformation();
+    ConfigInformation configInformation = new ConfigInformation();
 
     public Message(NMS nmsUtil) {
         this.nmsUtil = nmsUtil;

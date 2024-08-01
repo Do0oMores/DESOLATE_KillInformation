@@ -40,6 +40,5 @@ public class KillRecord {
         } else {
             player.sendMessage(ChatColor.DARK_RED + "该物品未在服务器注册无法保存击杀信息");
         }
-
     }
 }

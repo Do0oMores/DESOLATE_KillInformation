@@ -7,6 +7,7 @@ import top.mores.Utils.NMS;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public final class KillInformation extends JavaPlugin {
 
@@ -59,6 +60,9 @@ public final class KillInformation extends JavaPlugin {
 
         //注册监听器
         getServer().getPluginManager().registerEvents(killListener, this);
+
+        //注册命令
+        Objects.requireNonNull(getCommand("kf")).setExecutor(new InformationCommand());
         getLogger().info("KillMessage Enabled!");
     }
 
@@ -69,15 +73,6 @@ public final class KillInformation extends JavaPlugin {
 
     public void reloadConfig() {
         config = YamlConfiguration.loadConfiguration(configFile);
-    }
-
-    //保存配置文件
-    public void saveConfigFile() {
-        try {
-            config.save(configFile);
-        } catch (IOException e) {
-            System.out.println("保存配置文件出错");
-        }
     }
 
     @Override

@@ -33,8 +33,13 @@ public class KillRecord {
                 dataFile.set(playerName + "." + itemDisplayName, 1);
                 KillInformation.getInstance().saveDataFile();
             } else {
-                int itemKill = dataFile.getInt(playerName + "." + itemDisplayName);
-                dataFile.set(playerName + "." + itemDisplayName, itemKill + 1);
+                int itemKill = dataFile.getInt(playerName + "." + itemDisplayName) + 1;
+                dataFile.set(playerName + "." + itemDisplayName, itemKill);
+                player.sendMessage(ChatColor.GOLD + "[" +
+                        ChatColor.GRAY + itemDisplayName +
+                        ChatColor.GOLD + "]" +
+                        ChatColor.DARK_GREEN + "已击杀：" +
+                        ChatColor.DARK_AQUA + itemKill);
                 KillInformation.getInstance().saveDataFile();
             }
         } else {

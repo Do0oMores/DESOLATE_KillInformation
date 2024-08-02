@@ -27,7 +27,7 @@ public class KillRecord {
         if (itemMeta.hasDisplayName()) {
             String itemDisplayName = itemMeta.getDisplayName();
             //移除§.
-            //itemDisplayName = itemDisplayName.replaceAll("§.", "");
+            itemDisplayName = itemDisplayName.replaceAll("§.", "");
             String playerName = player.getName();
             if (!dataFile.contains(playerName + "." + itemDisplayName)) {
                 dataFile.set(playerName + "." + itemDisplayName, 1);

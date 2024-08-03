@@ -8,4 +8,3 @@ commands:
   kf:
     description: KillInformation Command
     usage: /kf <reload>[<cx>] {<PlayerName>}
-    permission: op

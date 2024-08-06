@@ -35,8 +35,6 @@ public class KillRecord {
             } else {
                 int itemKill = dataFile.getInt(playerName + "." + itemDisplayName) + 1;
                 dataFile.set(playerName + "." + itemDisplayName, itemKill);
-                //更新玩家等级
-                dataFile.set(playerName + "." + "Level", player.getLevel());
                 player.sendMessage(ChatColor.GOLD + "[" +
                         ChatColor.GRAY + itemDisplayName +
                         ChatColor.GOLD + "]" +

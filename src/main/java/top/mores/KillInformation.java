@@ -3,6 +3,9 @@ package top.mores;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import top.mores.PlayerListener.KillListener;
+import top.mores.PluginCommand.InformationCommand;
+import top.mores.Record.KillRecord;
 import top.mores.Utils.NMS;
 
 import java.io.File;

@@ -1,4 +1,4 @@
-package top.mores;
+package top.mores.PlayerListener;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -8,6 +8,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import top.mores.Message;
+import top.mores.Record.KillRecord;
 
 import java.util.HashMap;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package top.mores;
+package top.mores.PluginCommand;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
@@ -6,6 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import top.mores.KillInformation;
+import top.mores.Utils.ConfigInformation;
 
 import java.util.List;
 

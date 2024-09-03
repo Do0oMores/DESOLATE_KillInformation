@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import top.mores.Utils.ConfigInformation;
 import top.mores.Utils.NMS;
 
 public class Message {
@@ -111,7 +112,7 @@ public class Message {
         return (isBlock ? "block." : "item.") + id.replace(':', '.');
     }
 
-    protected void sendActionbar(Player player, Player killer) {
+    public void sendActionbar(Player player, Player killer) {
         String playerName = player.getName();
         if (checkPlayerTeam(killer) == null && checkPlayerTeam(player) == null) {
             killer.spigot().sendMessage(ChatMessageType.ACTION_BAR, BuildActionbar(playerName, ChatColor.LIGHT_PURPLE));

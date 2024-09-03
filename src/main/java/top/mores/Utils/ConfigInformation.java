@@ -1,8 +1,9 @@
-package top.mores;
+package top.mores.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import top.mores.KillInformation;
 
 import java.util.ArrayList;
 import java.util.List;

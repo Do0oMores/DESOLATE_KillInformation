@@ -18,7 +18,6 @@ public class KillListener implements Listener {
     private final Message message;
     private final KillRecord killRecord;
     private final HashMap<UUID, KillStreak> killStreaks = new HashMap<>();
-    private final long STREAK_TIMEOUT = 30000;
 
     public KillListener(Message message, KillRecord killRecord) {
         this.message = message;
@@ -37,6 +36,7 @@ public class KillListener implements Listener {
             long currentTime = System.currentTimeMillis();
 
             KillStreak streak = killStreaks.getOrDefault(killerUUID, new KillStreak(0, currentTime));
+            long STREAK_TIMEOUT = 30000;
             if (currentTime - streak.getLastKillTime() <= STREAK_TIMEOUT) {
                 streak.incrementKills();
 

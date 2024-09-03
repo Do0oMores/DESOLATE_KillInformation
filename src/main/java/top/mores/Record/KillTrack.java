@@ -12,7 +12,7 @@ import java.util.List;
 public class KillTrack {
 
     public void initItemLore(Player player) {
-        ItemStack itemStack = player.getInventory().getItemInMainHand();
+        ItemStack itemStack = player.getInventory().getItemInOffHand();
         if (itemStack.getType().equals(Material.AIR)) {
             player.sendMessage("请手持需要注册击杀追踪的物品");
             return;

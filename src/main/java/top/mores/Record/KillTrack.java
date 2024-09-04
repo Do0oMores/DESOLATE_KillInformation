@@ -13,7 +13,7 @@ public class KillTrack {
     public void initItemLore(Player player) {
         ItemStack itemStack = player.getInventory().getItemInOffHand();
         if (itemStack.getType().equals(Material.AIR)) {
-            player.sendMessage("请手持需要注册击杀追踪的物品");
+            player.sendMessage("请将需要注册击杀追踪的物品放到副手");
             return;
         }
         ItemMeta meta = itemStack.getItemMeta();
@@ -21,10 +21,18 @@ public class KillTrack {
             player.sendMessage("该物品没有检测到任何标签内容，是否确定注册？请再次输入指令进行注册！");
             return;
         }
+        if (!meta.hasDisplayName()) {
+            player.sendMessage("该物品未在服务器内注册！");
+            return;
+        }
         List<String> itemLore = getStrings(meta);
         if (itemLore == null) {
             player.sendMessage("该物品已注册击杀记录！");
             return;
+        }
+        String itemName = meta.getDisplayName();
+        if (!itemName.endsWith("(StatTrack)")) {
+            meta.setDisplayName(itemName + "(StatTrack)");
         }
 
         meta.setLore(itemLore);
@@ -88,7 +96,6 @@ public class KillTrack {
                     meta.setLore(itemLore);
                     itemStack.setItemMeta(meta);
                     player.getInventory().setItemInMainHand(itemStack);
-                    //player.sendMessage("击杀数已增加，目前为：" + killCount);
                     return;
                 } catch (NumberFormatException e) {
                     player.sendMessage("无法解析击杀数，请联系管理员");

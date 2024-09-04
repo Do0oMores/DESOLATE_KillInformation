@@ -4,7 +4,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,21 +22,29 @@ public class KillTrack {
             return;
         }
         List<String> itemLore = getStrings(meta);
+        if (itemLore==null){
+            player.sendMessage("该物品已注册击杀记录！");
+            return;
+        }
 
         meta.setLore(itemLore);
         itemStack.setItemMeta(meta);
-        player.getInventory().setItemInMainHand(itemStack);
+        player.getInventory().setItemInOffHand(itemStack);
 
         player.sendMessage("击杀记录已更新并替换手中的物品！");
     }
 
-    @NotNull
     private static List<String> getStrings(ItemMeta meta) {
         List<String> itemLore = meta.getLore();
         if (itemLore == null) {
             itemLore = new ArrayList<>();
             itemLore.add("已击杀：0");
         } else {
+            for (String lore:itemLore){
+                if (lore.startsWith("已击杀")){
+                    return null;
+                }
+            }
             boolean foundLore = false;
             for (int i = 0; i < itemLore.size(); i++) {
                 String lore = itemLore.get(i);

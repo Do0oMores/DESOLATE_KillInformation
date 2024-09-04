@@ -14,8 +14,8 @@ import top.mores.Utils.ConfigInformation;
 import top.mores.Utils.NMS;
 
 public class Message {
-    private final NMS nmsUtil;
 
+    private final NMS nmsUtil;
     ConfigInformation configInformation = new ConfigInformation();
 
     public Message(NMS nmsUtil) {
@@ -106,7 +106,6 @@ public class Message {
         itemInfo.addExtra("]");
         return itemInfo;
     }
-
 
     private static String getTranslateKey(String id, boolean isBlock) {
         return (isBlock ? "block." : "item.") + id.replace(':', '.');

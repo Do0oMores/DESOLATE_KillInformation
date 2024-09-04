@@ -22,7 +22,7 @@ public class KillTrack {
             return;
         }
         List<String> itemLore = getStrings(meta);
-        if (itemLore==null){
+        if (itemLore == null) {
             player.sendMessage("该物品已注册击杀记录！");
             return;
         }
@@ -40,8 +40,8 @@ public class KillTrack {
             itemLore = new ArrayList<>();
             itemLore.add("已击杀：0");
         } else {
-            for (String lore:itemLore){
-                if (lore.startsWith("已击杀")){
+            for (String lore : itemLore) {
+                if (lore.startsWith("已击杀")) {
                     return null;
                 }
             }
@@ -59,5 +59,43 @@ public class KillTrack {
             }
         }
         return itemLore;
+    }
+
+    public void addKillAmount(Player player) {
+        ItemStack itemStack = player.getInventory().getItemInMainHand();
+        if (itemStack.getType().equals(Material.AIR)) {
+            return;
+        }
+
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null || !meta.hasLore()) {
+            return;
+        }
+
+        List<String> itemLore = meta.getLore();
+        if (itemLore == null) {
+            return;
+        }
+
+        for (int i = 0; i < itemLore.size(); i++) {
+            String lore = itemLore.get(i);
+            if (lore.startsWith("已击杀：")) {
+                try {
+                    int killCount = Integer.parseInt(lore.substring(4));
+                    killCount++;
+                    // 更新 lore
+                    itemLore.set(i, "已击杀：" + killCount);
+                    meta.setLore(itemLore);
+                    itemStack.setItemMeta(meta);
+                    player.getInventory().setItemInMainHand(itemStack);
+                    //player.sendMessage("击杀数已增加，目前为：" + killCount);
+                    return;
+                } catch (NumberFormatException e) {
+                    player.sendMessage("无法解析击杀数，请联系管理员");
+                    return;
+                }
+            }
+        }
+        player.sendMessage("该物品没有注册击杀记录");
     }
 }

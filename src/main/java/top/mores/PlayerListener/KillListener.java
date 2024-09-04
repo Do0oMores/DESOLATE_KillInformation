@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import top.mores.Message;
 import top.mores.Record.KillRecord;
+import top.mores.Record.KillTrack;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -18,6 +19,7 @@ public class KillListener implements Listener {
     private final Message message;
     private final KillRecord killRecord;
     private final HashMap<UUID, KillStreak> killStreaks = new HashMap<>();
+    KillTrack killTrack=new KillTrack();
 
     public KillListener(Message message, KillRecord killRecord) {
         this.message = message;
@@ -32,6 +34,7 @@ public class KillListener implements Listener {
         killStreaks.remove(playerUUID);
         if (player.getKiller() != null) {
             Player killer = player.getKiller();
+            killTrack.addKillAmount(killer);
             UUID killerUUID = killer.getUniqueId();
             long currentTime = System.currentTimeMillis();
 

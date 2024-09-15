@@ -1,6 +1,7 @@
 package top.mores.Utils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import top.mores.KillInformation;
@@ -12,8 +13,10 @@ import java.util.Set;
 
 public class ConfigInformation {
 
+    Configuration config = KillInformation.getInstance().getConfig();
+
     public boolean getONLY_SAME_WORLD() {
-        return KillInformation.getInstance().getConfig().getBoolean("只给相同世界的玩家发送信息");
+        return config.getBoolean("只给相同世界的玩家发送信息");
     }
 
     public List<String> getPlayerItemKillData(Player player) {
@@ -43,11 +46,15 @@ public class ConfigInformation {
         String playerName = player.getName();
         ListMessage.add(ChatColor.DARK_PURPLE + "玩家ID: " + ChatColor.GOLD + playerName);
         //获取玩家数据
-        List<String> playerData= getPlayerItemKillData(player);
+        List<String> playerData = getPlayerItemKillData(player);
         // 将玩家数据添加到消息列表中
         for (String data : playerData) {
             ListMessage.add(ChatColor.GRAY + data);
         }
         return ListMessage;
+    }
+
+    public int getKillTrackValue(){
+        return config.getInt("击杀记录");
     }
 }

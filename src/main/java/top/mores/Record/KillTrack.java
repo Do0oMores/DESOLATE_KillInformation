@@ -1,14 +1,18 @@
 package top.mores.Record;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import top.mores.Vault.VaultHandle;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class KillTrack {
+
+    VaultHandle vaultHandle = new VaultHandle();
 
     public void initItemLore(Player player) {
         ItemStack itemStack = player.getInventory().getItemInOffHand();
@@ -30,16 +34,18 @@ public class KillTrack {
             player.sendMessage("该物品已注册击杀记录！");
             return;
         }
-        String itemName = meta.getDisplayName();
-        if (!itemName.endsWith("(StatTrack)")) {
-            meta.setDisplayName(itemName + "(StatTrack)");
+        if (vaultHandle.removePlayerVault(player)) {
+            String itemName = meta.getDisplayName();
+            if (!itemName.endsWith("(StatTrack)")) {
+                meta.setDisplayName(itemName + "(StatTrack)");
+            }
+            meta.setLore(itemLore);
+            itemStack.setItemMeta(meta);
+            player.getInventory().setItemInOffHand(itemStack);
+            player.sendMessage(ChatColor.GREEN + "击杀记录已更新并替换手中的物品！");
+        } else {
+            player.sendMessage(ChatColor.RED + "没有足够的金币");
         }
-
-        meta.setLore(itemLore);
-        itemStack.setItemMeta(meta);
-        player.getInventory().setItemInOffHand(itemStack);
-
-        player.sendMessage("击杀记录已更新并替换手中的物品！");
     }
 
     private static List<String> getStrings(ItemMeta meta) {

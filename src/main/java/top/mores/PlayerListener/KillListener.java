@@ -19,7 +19,7 @@ public class KillListener implements Listener {
     private final Message message;
     private final KillRecord killRecord;
     private final HashMap<UUID, KillStreak> killStreaks = new HashMap<>();
-    KillTrack killTrack=new KillTrack();
+    KillTrack killTrack = new KillTrack();
 
     public KillListener(Message message, KillRecord killRecord) {
         this.message = message;

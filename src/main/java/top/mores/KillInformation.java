@@ -7,6 +7,7 @@ import top.mores.PlayerListener.KillListener;
 import top.mores.PluginCommand.InformationCommand;
 import top.mores.Record.KillRecord;
 import top.mores.Utils.NMS;
+import top.mores.Vault.VaultHandle;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +27,7 @@ public final class KillInformation extends JavaPlugin {
         instance = this;
         //加载配置文件
         configFile = new File(getDataFolder(), "config.yml");
+
         if (!configFile.exists()) {
             boolean isCreateDir = configFile.getParentFile().mkdirs();
             //添加一个文件夹创建判断
@@ -47,6 +49,12 @@ public final class KillInformation extends JavaPlugin {
             }
         }
         reloadDataFile();
+
+        if (!VaultHandle.setupEconomy()){
+            getLogger().severe("Failed to setup economy!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         //获取版本
         mcVersion = Integer.parseInt(getServer().getBukkitVersion().replace('-', '.').split("\\.")[1]);
         //初始化配置文件

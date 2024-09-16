@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import top.mores.Message;
 import top.mores.Record.KillRecord;
 import top.mores.Record.KillTrack;
+import top.mores.Utils.ConfigInformation;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class KillListener implements Listener {
     private final KillRecord killRecord;
     private final HashMap<UUID, KillStreak> killStreaks = new HashMap<>();
     KillTrack killTrack = new KillTrack();
+    ConfigInformation configInformation = new ConfigInformation();
 
     public KillListener(Message message, KillRecord killRecord) {
         this.message = message;
@@ -39,7 +41,7 @@ public class KillListener implements Listener {
             long currentTime = System.currentTimeMillis();
 
             KillStreak streak = killStreaks.getOrDefault(killerUUID, new KillStreak(0, currentTime));
-            long STREAK_TIMEOUT = 30000;
+            long STREAK_TIMEOUT = configInformation.getKillTick()* 1000L;
             if (currentTime - streak.getLastKillTime() <= STREAK_TIMEOUT) {
                 streak.incrementKills();
 

@@ -19,7 +19,7 @@
 
 - 记录击杀信息到 `data.yml`
 - 可对接 [`Kookbot`](https://github.com/DESOLATE-CRG/DESOLATE-KookBot-MC) 在KOOK频道内查询击杀信息
-- 命令：`/kf cx` 可查询玩家十条击杀信息
+- 命令：`/kf cx` 可查询玩家五条击杀信息
 > 物品需要有Display Name才可记录击杀信息
 </details>
 
@@ -35,7 +35,8 @@
 
 <details><summary><b>连杀提示</b></summary>
 
-- 在三十秒内造成连杀将提示该世界所有玩家
+- 默认在三十秒内造成连杀将提示该世界所有玩家
+> 更改 `连杀间隔` 可进行配置（单位：秒）
 </details>
 
 ---

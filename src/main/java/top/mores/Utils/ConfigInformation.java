@@ -57,4 +57,8 @@ public class ConfigInformation {
     public int getKillTrackValue(){
         return config.getInt("击杀记录");
     }
+
+    public int getKillTick(){
+        return config.getInt("连杀间隔");
+    }
 }

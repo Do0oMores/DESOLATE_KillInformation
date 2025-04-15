@@ -109,6 +109,5 @@ public class KillTrack {
                 }
             }
         }
-        player.sendMessage("该物品没有注册击杀记录");
     }
 }

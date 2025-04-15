@@ -36,7 +36,7 @@ public class ConfigInformation {
                 count++;
             }
         } else {
-            playerData.add("没有关于: " + playerName + "的数据");
+            playerData.add(String.format("没有关于 %s 的数据", playerName));
         }
         return playerData;
     }

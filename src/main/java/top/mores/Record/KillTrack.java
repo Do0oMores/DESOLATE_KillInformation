@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import top.mores.Utils.ConfigInformation;
 import top.mores.Vault.VaultHandle;
 
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import java.util.List;
 public class KillTrack {
 
     VaultHandle vaultHandle = new VaultHandle();
+    static ConfigInformation configInformation = new ConfigInformation();
+    static String loreMessage = configInformation.getLoreMessage();
 
     public void initItemLore(Player player) {
         ItemStack itemStack = player.getInventory().getItemInOffHand();
@@ -52,10 +55,10 @@ public class KillTrack {
         List<String> itemLore = meta.getLore();
         if (itemLore == null) {
             itemLore = new ArrayList<>();
-            itemLore.add("已击杀：0");
+            itemLore.add(loreMessage + "：0");
         } else {
             for (String lore : itemLore) {
-                if (lore.startsWith("已击杀")) {
+                if (lore.startsWith(loreMessage)) {
                     return null;
                 }
             }
@@ -63,13 +66,13 @@ public class KillTrack {
             for (int i = 0; i < itemLore.size(); i++) {
                 String lore = itemLore.get(i);
                 if (lore.equals("lore")) {
-                    itemLore.set(i, "已击杀：0");
+                    itemLore.set(i, loreMessage + "：0");
                     foundLore = true;
                     break;
                 }
             }
             if (!foundLore) {
-                itemLore.add("已击杀：0");
+                itemLore.add(loreMessage + "：0");
             }
         }
         return itemLore;
@@ -93,12 +96,12 @@ public class KillTrack {
 
         for (int i = 0; i < itemLore.size(); i++) {
             String lore = itemLore.get(i);
-            if (lore.startsWith("已击杀：")) {
+            if (lore.startsWith(loreMessage + "：")) {
                 try {
-                    int killCount = Integer.parseInt(lore.substring(4));
+                    String killCountStr = lore.substring(loreMessage.length() + 1).trim();
+                    int killCount = Integer.parseInt(killCountStr);
                     killCount++;
-                    // 更新 lore
-                    itemLore.set(i, "已击杀：" + killCount);
+                    itemLore.set(i, loreMessage + "：" + killCount);
                     meta.setLore(itemLore);
                     itemStack.setItemMeta(meta);
                     player.getInventory().setItemInMainHand(itemStack);

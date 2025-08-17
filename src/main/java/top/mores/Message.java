@@ -26,9 +26,8 @@ public class Message {
      * @param item   击杀者手上的物品
      * @param player 被击杀者
      * @param killer 击杀者
-     */
+     **/
     public void SendNormalMessages(ItemStack item, Player player, Player killer) {
-        // 判断空手
         if (item.getType() == Material.AIR) {
             return;
         }
@@ -41,41 +40,25 @@ public class Message {
         String itemNBT = nmsUtil.getItemNBT(item);
         ComponentBuilder builder = new ComponentBuilder();
 
-        // 构建消息文本
+        String messageTemplate = configInformation.getKillMessage();
+
         String playerName = player.getName();
         String killerName = killer.getName();
 
-        TextComponent killerText = new TextComponent(killerName);
-        killerText.setColor(ChatColor.GOLD);
-        killerText.setBold(true);
-        killerText.setItalic(true);
-        builder.append(killerText);
-
-        TextComponent forText = new TextComponent("使用");
-        forText.setColor(ChatColor.WHITE);
-        builder.append(forText);
-
-        // 构建物品信息
         TextComponent itemInfo = buildItemInfoComponent(item, meta, itemNBT);
-        builder.append(itemInfo);
+        String message = messageTemplate
+                .replace("%killer%", killerName)
+                .replace("%player%", playerName)
+                .replace("%weapon%", itemInfo.toLegacyText());
+        builder.append(new TextComponent(message));
 
-        TextComponent andText = new TextComponent("击杀了");
-        andText.setColor(ChatColor.WHITE);
-        builder.append(andText);
+        BaseComponent[] finalMessage = builder.create();
 
-        TextComponent playerText = new TextComponent(playerName);
-        playerText.setColor(ChatColor.DARK_RED);
-        playerText.setItalic(true);
-        playerText.setStrikethrough(true);
-        builder.append(playerText);
-
-        BaseComponent[] message = builder.create();
-
-        // 判断世界
         boolean onlyWorld = configInformation.getONLY_SAME_WORLD();
         Player[] targetPlayers = onlyWorld ? killer.getWorld().getPlayers().toArray(new Player[0]) : Bukkit.getOnlinePlayers().toArray(new Player[0]);
+
         for (Player targetPlayer : targetPlayers) {
-            targetPlayer.spigot().sendMessage(message);
+            targetPlayer.spigot().sendMessage(finalMessage);
         }
     }
 
@@ -138,9 +121,9 @@ public class Message {
 
     private TextComponent BuildActionbar(String playerName, ChatColor color) {
         TextComponent actionbar = new TextComponent(playerName);
-        actionbar.setBold(true);
-        actionbar.setItalic(true);
-        actionbar.setUnderlined(true);
+        actionbar.setBold(Boolean.TRUE);
+        actionbar.setItalic(Boolean.TRUE);
+        actionbar.setUnderlined(Boolean.TRUE);
         actionbar.setColor(color);
         return actionbar;
     }

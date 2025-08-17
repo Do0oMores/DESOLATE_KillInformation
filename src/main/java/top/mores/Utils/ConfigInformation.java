@@ -6,10 +6,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import top.mores.KillInformation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class ConfigInformation {
 
@@ -66,7 +63,17 @@ public class ConfigInformation {
         return config.getString("lore文本");
     }
 
-    public List<String> getKillMessage(){
+    public List<String> getKillMessageList(){
         return config.getStringList("击杀提示信息");
+    }
+
+    public String getAddKillMessage(){
+        return config.getString("击杀数增加提示");
+    }
+
+    public String getKillMessage(){
+        List<String> messageList=getKillMessageList();
+        Collections.shuffle(messageList);
+        return messageList.get(0);
     }
 }

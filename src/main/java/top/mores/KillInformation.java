@@ -3,6 +3,7 @@ package top.mores;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import top.mores.PlayerListener.KillListener;
 import top.mores.PluginCommand.InformationCommand;
 import top.mores.Record.KillRecord;
@@ -50,7 +51,7 @@ public final class KillInformation extends JavaPlugin {
         }
         reloadDataFile();
 
-        if (!VaultHandle.setupEconomy()){
+        if (!VaultHandle.setupEconomy()) {
             getLogger().severe("Failed to setup economy!");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -62,9 +63,9 @@ public final class KillInformation extends JavaPlugin {
         KillListener killListener;
         try {
             NMS nmsUtil = new NMS(this);
-            KillRecord killRecord=new KillRecord();
+            KillRecord killRecord = new KillRecord();
             Message message = new Message(nmsUtil);
-            killListener = new KillListener(message,killRecord);
+            killListener = new KillListener(message, killRecord);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -87,7 +88,7 @@ public final class KillInformation extends JavaPlugin {
     }
 
     @Override
-    public FileConfiguration getConfig() {
+    public @NotNull FileConfiguration getConfig() {
         return config;
     }
 

@@ -10,5 +10,5 @@ lore文本: 已击杀
 击杀数增加提示: §d[%weapon%§d] §1已击杀-%amount%
 #击杀提示，支持多行随机(击杀者：%killer%、被击杀者：%player%、使用的武器：%weapon%)
 击杀提示信息:
-  - §a%killer% §r[%weapon%§r] §c%player%
+  - §a%killer% §r%weapon%§r §c%player%
   - §a%killer% §r使用 %weapon% §r抹除了 §c%player%

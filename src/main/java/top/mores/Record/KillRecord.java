@@ -8,8 +8,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import top.mores.KillInformation;
 import top.mores.Utils.ConfigInformation;
 
-import java.util.Optional;
-
 public class KillRecord {
     FileConfiguration dataFile = KillInformation.getInstance().getDataConfig();
     private final ConfigInformation configInformation = new ConfigInformation();
@@ -35,11 +33,11 @@ public class KillRecord {
             itemDisplayName = itemDisplayName.replaceAll("§.", "");
             String playerName = player.getName();
             if (!dataFile.contains(playerName + "." + itemDisplayName)) {
-                dataFile.set(playerName + "." + itemDisplayName, Optional.of(1));
+                dataFile.set(playerName + "." + itemDisplayName, 1);
                 KillInformation.getInstance().saveDataFile();
             } else {
                 int itemKill = dataFile.getInt(playerName + "." + itemDisplayName) + 1;
-                dataFile.set(playerName + "." + itemDisplayName, Optional.of(itemKill));
+                dataFile.set(playerName + "." + itemDisplayName, itemKill);
                 String message = configInformation.getAddKillMessage()
                         .replace("%weapon%", itemDisplayName)
                         .replace("%amount%", String.valueOf(itemKill));

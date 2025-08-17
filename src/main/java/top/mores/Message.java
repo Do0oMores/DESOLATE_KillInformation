@@ -48,10 +48,15 @@ public class Message {
         TextComponent itemInfo = buildItemInfoComponent(item, meta, itemNBT);
         String message = messageTemplate
                 .replace("%killer%", killerName)
-                .replace("%player%", playerName)
-                .replace("%weapon%", itemInfo.toLegacyText());
-        builder.append(new TextComponent(message));
-
+                .replace("%player%", playerName);
+        ComponentBuilder finalMessageBuilder = new ComponentBuilder();
+        String[] parts = message.split("%weapon%");
+        finalMessageBuilder.append(parts[0]);
+        finalMessageBuilder.append(itemInfo);
+        if (parts.length > 1) {
+            finalMessageBuilder.append(parts[1]);
+        }
+        builder.append(finalMessageBuilder.create());
         BaseComponent[] finalMessage = builder.create();
 
         boolean onlyWorld = configInformation.getONLY_SAME_WORLD();

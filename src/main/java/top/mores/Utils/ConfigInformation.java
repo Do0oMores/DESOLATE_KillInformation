@@ -61,4 +61,12 @@ public class ConfigInformation {
     public int getKillTick(){
         return config.getInt("连杀间隔");
     }
+
+    public String getLoreMessage(){
+        return config.getString("lore文本");
+    }
+
+    public List<String> getKillMessage(){
+        return config.getStringList("击杀提示信息");
+    }
 }

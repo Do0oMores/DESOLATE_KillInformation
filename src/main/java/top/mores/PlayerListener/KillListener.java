@@ -44,7 +44,6 @@ public class KillListener implements Listener {
             long STREAK_TIMEOUT = configInformation.getKillTick()* 1000L;
             if (currentTime - streak.getLastKillTime() <= STREAK_TIMEOUT) {
                 streak.incrementKills();
-
             } else {
                 streak.resetKills();
             }

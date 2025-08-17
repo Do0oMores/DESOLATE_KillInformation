@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DESOLATE_KillInformation.iml" filepath="$PROJECT_DIR$/DESOLATE_KillInformation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/DESOLATE_KillInformation.iml" filepath="$PROJECT_DIR$/.idea/DESOLATE_KillInformation.iml" />
     </modules>
   </component>
 </project>

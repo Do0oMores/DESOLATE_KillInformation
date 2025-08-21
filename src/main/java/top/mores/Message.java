@@ -37,14 +37,15 @@ public class Message {
             return;
         }
 
-        String itemNBT = nmsUtil.getItemNBT(item);
-        ComponentBuilder builder = new ComponentBuilder();
-
         String messageTemplate = configInformation.getKillMessage();
+        
+        // 解析颜色代码
+        messageTemplate = ChatColor.translateAlternateColorCodes('&', messageTemplate);
 
         String playerName = player.getName();
         String killerName = killer.getName();
 
+        String itemNBT = nmsUtil.getItemNBT(item);
         TextComponent itemInfo = buildItemInfoComponent(item, meta, itemNBT);
         String message = messageTemplate
                 .replace("%killer%", killerName)
@@ -56,6 +57,7 @@ public class Message {
         if (parts.length > 1) {
             finalMessageBuilder.append(parts[1]);
         }
+        ComponentBuilder builder = new ComponentBuilder();
         builder.append(finalMessageBuilder.create());
         BaseComponent[] finalMessage = builder.create();
 

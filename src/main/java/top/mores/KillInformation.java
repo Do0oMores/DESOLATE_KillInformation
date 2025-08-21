@@ -74,7 +74,9 @@ public final class KillInformation extends JavaPlugin {
         getServer().getPluginManager().registerEvents(killListener, this);
 
         //注册命令
-        Objects.requireNonNull(getCommand("kf")).setExecutor(new InformationCommand());
+        InformationCommand commandExecutor = new InformationCommand();
+        Objects.requireNonNull(getCommand("kf")).setExecutor(commandExecutor);
+        Objects.requireNonNull(getCommand("kf")).setTabCompleter(commandExecutor);
         getLogger().info("KillMessage Enabled!");
     }
 

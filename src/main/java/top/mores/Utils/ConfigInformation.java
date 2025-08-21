@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import top.mores.KillInformation;
 
 import java.util.*;
@@ -13,7 +14,7 @@ public class ConfigInformation {
     Configuration config = KillInformation.getInstance().getConfig();
 
     public boolean getONLY_SAME_WORLD() {
-        return config.getBoolean("只给相同世界的玩家发送信息");
+        return config.getBoolean("send_to_same_world_only");
     }
 
     public List<String> getPlayerItemKillData(Player player) {
@@ -52,28 +53,86 @@ public class ConfigInformation {
     }
 
     public int getKillTrackValue(){
-        return config.getInt("击杀记录");
+        return config.getInt("kill_track_cost");
     }
 
     public int getKillTick(){
-        return config.getInt("连杀间隔");
+        return config.getInt("kill_streak_interval");
     }
 
     public String getLoreMessage(){
-        return config.getString("lore文本");
+        return config.getString("lore_text");
     }
 
     public List<String> getKillMessageList(){
-        return config.getStringList("击杀提示信息");
+        return config.getStringList("kill_messages");
     }
 
     public String getAddKillMessage(){
-        return config.getString("击杀数增加提示");
+        return config.getString("kill_count_increase_message");
     }
 
     public String getKillMessage(){
         List<String> messageList=getKillMessageList();
         Collections.shuffle(messageList);
         return messageList.get(0);
+    }
+    
+    public String getKillStreakMessage() {
+        String message = config.getString("kill_streak_message");
+        if (message == null || message.isEmpty()) {
+            // 默认连杀提示消息
+            return "&7[&4连杀提示&7] &6%killer% &a已经连续造成 &4%kill_streak% &a次杀戮!";
+        }
+        return message;
+    }
+
+    public List<String> getKillCommands() {
+        return config.getStringList("kill_commands");
+    }
+    
+    // 新增方法：获取格式化后的击杀命令列表
+    public List<String> getFormattedKillCommands(Player killer, Player victim, ItemStack weapon) {
+        List<String> commands = getKillCommands();
+        List<String> formattedCommands = new ArrayList<>();
+        
+        for (String command : commands) {
+            // 为击杀命令添加占位符替换
+            String formattedCommand = PlaceholderUtil.replacePlaceholders(command, killer, victim, weapon, null);
+            formattedCommands.add(formattedCommand);
+        }
+        
+        return formattedCommands;
+    }
+
+    public List<String> getKillStreakCommands(int killStreak) {
+        // 获取最接近的配置项
+        int closestStreak = 0;
+        for (String key : Objects.requireNonNull(config.getConfigurationSection("kill_streak_commands")).getKeys(false)) {
+            int streak = Integer.parseInt(key);
+            if (streak <= killStreak && streak > closestStreak) {
+                closestStreak = streak;
+            }
+        }
+        
+        if (closestStreak > 0) {
+            return config.getStringList("kill_streak_commands." + closestStreak);
+        }
+        
+        return new ArrayList<>();
+    }
+
+    // 新增方法：获取格式化后的连杀命令列表
+    public List<String> getFormattedKillStreakCommands(Player killer, Player victim, ItemStack weapon, int killStreak) {
+        List<String> commands = getKillStreakCommands(killStreak);
+        List<String> formattedCommands = new ArrayList<>();
+        
+        for (String command : commands) {
+            // 为连杀命令添加占位符替换
+            String formattedCommand = PlaceholderUtil.replacePlaceholders(command, killer, victim, weapon, killStreak);
+            formattedCommands.add(formattedCommand);
+        }
+        
+        return formattedCommands;
     }
 }

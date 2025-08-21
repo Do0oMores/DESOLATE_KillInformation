@@ -1,10 +1,13 @@
 name: DESOLATE_KillInformation
-version: '1.0-SNAPSHOT'
+version: '1.1'
 main: top.mores.KillInformation
 api-version: '1.18'
-authors: [ Mores ]
+authors: [ Mores, Harry_H2O ]
 description: 击杀信息
 commands:
   kf:
     description: KillInformation Command
-    usage: /kf <reload>[<cx>] {<PlayerName>}
+    usage: /kf <reload|cx|killtrack> [PlayerName]
+    aliases: [killinfo]
+    permission: kf.use
+    permission-message: 你没有权限来执行这个命令

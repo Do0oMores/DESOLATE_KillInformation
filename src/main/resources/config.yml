@@ -1,14 +1,43 @@
-#控制击杀信息提示发送玩家范围（默认：true）
-只给相同世界的玩家发送信息: true
-#启用stattrack需要的经济数量（默认：1000）
-击杀记录: 1000
-#在该段时间内连续击杀会进行连杀提示（单位：秒、默认：30）
-连杀间隔: 30
-#武器lore击杀记录文本（默认：已击杀）
-lore文本: 已击杀
-#武器击杀数增加提示信息(支持使用"&"替代"§")
-击杀数增加提示: §d[%weapon%§d] §1已击杀-%amount%
-#击杀提示，支持多行随机(击杀者：%killer%、被击杀者：%player%、使用的武器：%weapon%)
-击杀提示信息:
-  - §a%killer% §r%weapon%§r §c%player%
-  - §a%killer% §r使用 %weapon% §r抹除了 §c%player%
+# 控制击杀信息提示发送玩家范围（默认：true）
+# 若设置为false，则所有玩家都能收到击杀信息提示
+# 若设置为true，则只有在击杀者和被击杀者在同一个世界时，才会收到击杀信息提示
+send_to_same_world_only: true
+
+# 启用stattrack需要的经济数量（默认：1000）
+kill_track_cost: 1000
+
+# 在该段时间内连续击杀会进行连杀提示（单位：秒、默认：30）
+kill_streak_interval: 30
+
+# 武器lore击杀记录文本（默认：已击杀）
+lore_text: 已击杀
+
+# 武器击杀数增加提示信息(支持使用"&"替代"§")
+kill_count_increase_message: "&d[%weapon%&d] &c已击杀&7-&f%amount%"
+
+# 击杀提示，支持多行随机
+kill_messages:
+  - "&a%killer% &r%weapon%&r &c%player%"
+  - "&a%killer% &r使用 %weapon% &r抹除了 &c%player%"
+
+# 连杀提示消息
+kill_streak_message: "&c[连杀提示] &e%killer% &a已经连续造成 &c%kill_streak% &a次杀戮!"
+
+# 击杀时执行的命令列表
+kill_commands: []
+
+# 连杀时执行的命令列表，按连杀数量区分
+kill_streak_commands:
+  2: []
+  3: []
+  5: []
+  10: []
+  20: []
+
+#配置文件中可以使用的占位符
+# %killer% 击杀者
+# %player% 被击杀者
+# %weapon% 使用的武器
+# %killer_uuid% 击杀者UUID
+# %player_uuid% 被击杀者UUID
+# %kill_streak% 连杀次数

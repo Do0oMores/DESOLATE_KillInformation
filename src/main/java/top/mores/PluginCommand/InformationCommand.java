@@ -4,21 +4,27 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import top.mores.KillInformation;
 import top.mores.Record.KillTrack;
 import top.mores.Utils.ConfigInformation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class InformationCommand implements CommandExecutor {
+public class InformationCommand implements CommandExecutor, TabCompleter {
     ConfigInformation configInformation = new ConfigInformation();
     KillTrack killTrack = new KillTrack();
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, String[] strings) {
-        if (strings.length != 1) {
+        if (strings.length < 1) {
             commandSender.sendMessage(ChatColor.RED + "未知的命令");
             return true;
         }
@@ -57,5 +63,18 @@ public class InformationCommand implements CommandExecutor {
                 break;
         }
         return true;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (args.length == 1) {
+            List<String> completions = new ArrayList<>();
+            List<String> commands = Arrays.asList("reload", "cx", "killtrack");
+            StringUtil.copyPartialMatches(args[0], commands, completions);
+            Collections.sort(completions);
+            return completions;
+        }
+        return Collections.emptyList();
     }
 }

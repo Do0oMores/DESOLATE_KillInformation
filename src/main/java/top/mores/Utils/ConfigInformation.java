@@ -1,7 +1,6 @@
 package top.mores.Utils;
 
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,10 +10,12 @@ import java.util.*;
 
 public class ConfigInformation {
 
-    Configuration config = KillInformation.getInstance().getConfig();
+    private FileConfiguration getConfig(){
+        return KillInformation.getInstance().getConfigFile();
+    }
 
     public boolean getONLY_SAME_WORLD() {
-        return config.getBoolean("send_to_same_world_only");
+        return getConfig().getBoolean("send_to_same_world_only");
     }
 
     public List<String> getPlayerItemKillData(Player player) {
@@ -53,23 +54,23 @@ public class ConfigInformation {
     }
 
     public int getKillTrackValue(){
-        return config.getInt("kill_track_cost");
+        return getConfig().getInt("kill_track_cost");
     }
 
     public int getKillTick(){
-        return config.getInt("kill_streak_interval");
+        return getConfig().getInt("kill_streak_interval");
     }
 
     public String getLoreMessage(){
-        return config.getString("lore_text");
+        return getConfig().getString("lore_text");
     }
 
     public List<String> getKillMessageList(){
-        return config.getStringList("kill_messages");
+        return getConfig().getStringList("kill_messages");
     }
 
     public String getAddKillMessage(){
-        return config.getString("kill_count_increase_message");
+        return getConfig().getString("kill_count_increase_message");
     }
 
     public String getKillMessage(){
@@ -79,7 +80,7 @@ public class ConfigInformation {
     }
     
     public String getKillStreakMessage() {
-        String message = config.getString("kill_streak_message");
+        String message = getConfig().getString("kill_streak_message");
         if (message == null || message.isEmpty()) {
             // 默认连杀提示消息
             return "&7[&4连杀提示&7] &6%killer% &a已经连续造成 &4%kill_streak% &a次杀戮!";
@@ -88,7 +89,7 @@ public class ConfigInformation {
     }
 
     public List<String> getKillCommands() {
-        return config.getStringList("kill_commands");
+        return getConfig().getStringList("kill_commands");
     }
     
     // 新增方法：获取格式化后的击杀命令列表
@@ -108,7 +109,7 @@ public class ConfigInformation {
     public List<String> getKillStreakCommands(int killStreak) {
         // 获取最接近的配置项
         int closestStreak = 0;
-        for (String key : Objects.requireNonNull(config.getConfigurationSection("kill_streak_commands")).getKeys(false)) {
+        for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("kill_streak_commands")).getKeys(false)) {
             int streak = Integer.parseInt(key);
             if (streak <= killStreak && streak > closestStreak) {
                 closestStreak = streak;
@@ -116,7 +117,7 @@ public class ConfigInformation {
         }
         
         if (closestStreak > 0) {
-            return config.getStringList("kill_streak_commands." + closestStreak);
+            return getConfig().getStringList("kill_streak_commands." + closestStreak);
         }
         
         return new ArrayList<>();

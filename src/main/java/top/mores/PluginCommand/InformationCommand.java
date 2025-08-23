@@ -36,7 +36,7 @@ public class InformationCommand implements CommandExecutor, TabCompleter {
                     commandSender.sendMessage("你没有权限执行该命令");
                     return true;
                 }
-                KillInformation.getInstance().reloadConfig();
+                KillInformation.getInstance().reloadConfigFile();
                 KillInformation.getInstance().reloadDataFile();
                 commandSender.sendMessage(ChatColor.GREEN + "所有配置文件已重新加载");
                 break;

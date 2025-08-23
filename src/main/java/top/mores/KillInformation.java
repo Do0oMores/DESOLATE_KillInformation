@@ -38,7 +38,7 @@ public final class KillInformation extends JavaPlugin {
             }
             saveResource("config.yml", false);
         }
-        reloadConfig();
+        reloadConfigFile();
 
         //加载data.yml
         dataFile = new File(getDataFolder(), "data.yml");
@@ -59,7 +59,7 @@ public final class KillInformation extends JavaPlugin {
         //获取版本
         mcVersion = Integer.parseInt(getServer().getBukkitVersion().replace('-', '.').split("\\.")[1]);
         //初始化配置文件
-        config = getConfig();
+        config = getConfigFile();
         KillListener killListener;
         try {
             NMS nmsUtil = new NMS(this);
@@ -85,12 +85,14 @@ public final class KillInformation extends JavaPlugin {
         getLogger().info("Disabled!");
     }
 
-    public void reloadConfig() {
+    public void reloadConfigFile() {
         config = YamlConfiguration.loadConfiguration(configFile);
     }
 
-    @Override
-    public @NotNull FileConfiguration getConfig() {
+    public @NotNull FileConfiguration getConfigFile() {
+        if (config==null){
+            reloadConfigFile();
+        }
         return config;
     }
 

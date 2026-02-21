@@ -23,8 +23,6 @@ public class KillTrack {
 
     private final NamespacedKey KILL_KEY;
 
-    private final String loreTemplateRaw;
-
     public KillTrack(KillInformation plugin) {
         this(plugin, new VaultHandle(), new ConfigInformation());
     }
@@ -35,7 +33,6 @@ public class KillTrack {
         this.configInformation = configInformation;
 
         this.KILL_KEY = new NamespacedKey(plugin, "kill_stat");
-        this.loreTemplateRaw = configInformation.getLoreMessage();
     }
 
     /** 注册：写 NBT + 写/替换 Lore 展示行（不可重复注册） */
@@ -62,6 +59,7 @@ public class KillTrack {
         }
 
         // 4) 模板检查
+        String loreTemplateRaw=getLoreTemplateRaw();
         if (loreTemplateRaw == null || loreTemplateRaw.isBlank() || !loreTemplateRaw.contains("%kill_stat%")) {
             player.sendMessage(ChatColorUtil.color(configInformation.getErrorTempleTip()));
             plugin.getLogger().warning("Config error: lore_text is blank or missing %kill_stat%.");
@@ -84,7 +82,7 @@ public class KillTrack {
         // 7) 扣费前先“预构造”要写入的内容，确保不会因为 lore/null 出错
         List<String> lore = meta.hasLore() ? meta.getLore() : null;
         if (lore == null) lore = new ArrayList<>();
-        setOrAppendKillLoreLine(lore, 0);
+        setOrAppendKillLoreLine(lore, 0,loreTemplateRaw);
 
         String newName = meta.getDisplayName();
         if (newName == null) newName = "";
@@ -129,7 +127,7 @@ public class KillTrack {
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
-
+        String loreTemplateRaw=getLoreTemplateRaw();
         if (loreTemplateRaw == null || loreTemplateRaw.isBlank() || !loreTemplateRaw.contains("%kill_stat%")) {
             return;
         }
@@ -142,7 +140,7 @@ public class KillTrack {
 
         List<String> lore = meta.hasLore() ? meta.getLore() : null;
         if (lore == null) lore = new ArrayList<>();
-        setOrAppendKillLoreLine(lore, newKill);
+        setOrAppendKillLoreLine(lore, newKill,loreTemplateRaw);
 
         try {
             pdc.set(KILL_KEY, PersistentDataType.INTEGER, newKill);
@@ -155,9 +153,9 @@ public class KillTrack {
     }
 
     /** 替换/追加 kill lore 行；并清理重复统计行 */
-    private void setOrAppendKillLoreLine(List<String> lore, int kill) {
-        String newLine = buildLoreColored(kill);
-        String prefix = getTemplatePrefixColored();
+    private void setOrAppendKillLoreLine(List<String> lore, int kill,String loreTemplateRaw) {
+        String newLine = buildLoreColored(kill,loreTemplateRaw);
+        String prefix = getTemplatePrefixColored(loreTemplateRaw);
 
         int foundIndex = -1;
 
@@ -187,11 +185,15 @@ public class KillTrack {
         }
     }
 
-    private String buildLoreColored(int kill) {
+    private String buildLoreColored(int kill, String loreTemplateRaw) {
         return ChatColorUtil.color(loreTemplateRaw.replace("%kill_stat%", String.valueOf(kill)));
     }
 
-    private String getTemplatePrefixColored() {
+    private String getTemplatePrefixColored(String loreTemplateRaw) {
         return ChatColorUtil.color(loreTemplateRaw.replace("%kill_stat%", ""));
+    }
+
+    private String getLoreTemplateRaw() {
+        return configInformation.getLoreMessage();
     }
 }

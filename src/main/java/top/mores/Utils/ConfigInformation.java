@@ -176,4 +176,8 @@ public class ConfigInformation {
     public String getErrorVaultReadyTip(){
         return getConfig().getString("error_vault_ready_tip");
     }
+
+    public boolean getEnableKillStreak(){
+        return getConfig().getBoolean("enable_kill_streak");
+    }
 }

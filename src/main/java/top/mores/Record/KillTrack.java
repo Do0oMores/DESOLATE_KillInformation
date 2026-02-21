@@ -1,5 +1,6 @@
 package top.mores.Record;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -35,30 +36,26 @@ public class KillTrack {
         this.KILL_KEY = new NamespacedKey(plugin, "kill_stat");
     }
 
-    /** 注册：写 NBT + 写/替换 Lore 展示行（不可重复注册） */
     public void initItemLore(Player player) {
         ItemStack item = player.getInventory().getItemInMainHand();
 
-        // 1) 主手检查
         if (item == null || item.getType() == Material.AIR) {
             player.sendMessage(ChatColorUtil.color(configInformation.getStatTrackRegTip()));
             return;
         }
 
-        // 2) meta 检查
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {
             player.sendMessage(ChatColorUtil.color(configInformation.getReRegStatTrackTip()));
             return;
         }
 
-        // 3)必须有 displayName
         if (!meta.hasDisplayName()) {
             player.sendMessage(ChatColorUtil.color(configInformation.getNotRegItemTip()));
             return;
         }
 
-        // 4) 模板检查
+        //模板检查
         String loreTemplateRaw=getLoreTemplateRaw();
         if (loreTemplateRaw == null || loreTemplateRaw.isBlank() || !loreTemplateRaw.contains("%kill_stat%")) {
             player.sendMessage(ChatColorUtil.color(configInformation.getErrorTempleTip()));
@@ -66,20 +63,19 @@ public class KillTrack {
             return;
         }
 
-        // 5) Vault 就绪检查
+        //Vault检查
         if (!vaultHandle.isReady()) {
             player.sendMessage(ChatColorUtil.color(configInformation.getErrorVaultReadyTip()));
             return;
         }
 
-        // 6) 已注册检查
+        //已注册检查
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         if (pdc.has(KILL_KEY, PersistentDataType.INTEGER)) {
             player.sendMessage(ChatColorUtil.color(configInformation.getItemRegedTip()));
             return;
         }
 
-        // 7) 扣费前先“预构造”要写入的内容，确保不会因为 lore/null 出错
         List<String> lore = meta.hasLore() ? meta.getLore() : null;
         if (lore == null) lore = new ArrayList<>();
         setOrAppendKillLoreLine(lore, 0,loreTemplateRaw);
@@ -90,20 +86,18 @@ public class KillTrack {
             newName = newName + configInformation.getItemStatTrackName();
         }
 
-        // 8) 余额不足提示
+        //余额不足提示
         if (!vaultHandle.hasEnough(player)) {
             player.sendMessage(ChatColorUtil.color(configInformation.getVaultNotEnoughTip()));
             return;
         }
 
-        // 9) 扣费
+        //扣费
         if (!vaultHandle.removePlayerVault(player)) {
-            //可能是余额不足 / 经济插件拒绝交易
             player.sendMessage(ChatColorUtil.color(configInformation.getVaultNotEnoughTip()));
             return;
         }
 
-        // 10) 落盘：写 NBT + 写 Lore/Name（尽量不失败）
         try {
             pdc.set(KILL_KEY, PersistentDataType.INTEGER, 0);
             meta.setDisplayName(newName);
@@ -120,7 +114,6 @@ public class KillTrack {
         }
     }
 
-    /** 击杀 +1：只读写 NBT，然后刷新 Lore 展示行 */
     public void addKillAmount(Player player) {
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || item.getType() == Material.AIR) return;
@@ -152,45 +145,64 @@ public class KillTrack {
         }
     }
 
-    /** 替换/追加 kill lore 行；并清理重复统计行 */
-    private void setOrAppendKillLoreLine(List<String> lore, int kill,String loreTemplateRaw) {
-        String newLine = buildLoreColored(kill,loreTemplateRaw);
-        String prefix = getTemplatePrefixColored(loreTemplateRaw);
-
+    private void setOrAppendKillLoreLine(List<String> lore, int kill, String loreTemplateRaw) {
+        String newLine = buildLoreColored(kill, loreTemplateRaw);
+        String label = extractLabel(loreTemplateRaw);
+        if (label.isBlank()) {
+            lore.add(newLine);
+            return;
+        }
         int foundIndex = -1;
-
         for (int i = 0; i < lore.size(); i++) {
             String line = lore.get(i);
             if (line == null) continue;
-
-            if (line.equalsIgnoreCase("lore") || line.startsWith(prefix)) {
+            if (line.equalsIgnoreCase("lore")) {
+                foundIndex = i;
+                lore.set(i, newLine);
+                break;
+            }
+            if (isKillLoreLine(line, label)) {
                 foundIndex = i;
                 lore.set(i, newLine);
                 break;
             }
         }
-
         if (foundIndex == -1) {
             lore.add(newLine);
             foundIndex = lore.size() - 1;
         }
-
-        // 清理其它重复行
         for (int i = lore.size() - 1; i >= 0; i--) {
             if (i == foundIndex) continue;
             String line = lore.get(i);
-            if (line != null && line.startsWith(prefix)) {
+            if (line != null && isKillLoreLine(line, label)) {
                 lore.remove(i);
             }
         }
     }
 
-    private String buildLoreColored(int kill, String loreTemplateRaw) {
-        return ChatColorUtil.color(loreTemplateRaw.replace("%kill_stat%", String.valueOf(kill)));
+    private String extractLabel(String loreTemplateRaw) {
+        String raw = ChatColor.stripColor(ChatColorUtil.color(loreTemplateRaw));
+        int idx = raw.indexOf("%kill_stat%");
+        String label = (idx >= 0 ? raw.substring(0, idx) : raw);
+
+        return normalize(label);
     }
 
-    private String getTemplatePrefixColored(String loreTemplateRaw) {
-        return ChatColorUtil.color(loreTemplateRaw.replace("%kill_stat%", ""));
+    private boolean isKillLoreLine(String loreLine, String normalizedLabel) {
+        String line = ChatColor.stripColor(loreLine);
+        line = normalize(line);
+        return line.startsWith(normalizedLabel);
+    }
+
+    private String normalize(String s) {
+        if (s == null) return "";
+        return s.replace('：', ':')
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private String buildLoreColored(int kill, String loreTemplateRaw) {
+        return ChatColorUtil.color(loreTemplateRaw.replace("%kill_stat%", String.valueOf(kill)));
     }
 
     private String getLoreTemplateRaw() {

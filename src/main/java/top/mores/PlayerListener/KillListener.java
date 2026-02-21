@@ -68,8 +68,10 @@ public class KillListener implements Listener {
                 message.sendActionbar(victim, killer);
             }
             // 检查是否为连杀
-            if (streak.getKillCount() >= 2) {
-                handleKillStreak(killer, victim, weapon, streak);
+            if (configInformation.getEnableKillStreak()){
+                if (streak.getKillCount() >= 2) {
+                    handleKillStreak(killer, victim, weapon, streak);
+                }
             }
         }
     }

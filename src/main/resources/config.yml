@@ -17,6 +17,8 @@ enable_kill_tips: true
 # 启用stattrack需要的经济数量（默认：1000）
 kill_track_cost: 1000
 
+#是否启用连杀提示
+enable_kill_streak: true
 # 在该段时间内连续击杀会进行连杀提示（单位：秒、默认：30）
 kill_streak_interval: 30
 

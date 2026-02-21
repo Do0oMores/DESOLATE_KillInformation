@@ -19,8 +19,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class InformationCommand implements CommandExecutor, TabCompleter {
-    ConfigInformation configInformation = new ConfigInformation();
-    KillTrack killTrack = new KillTrack();
+    private final ConfigInformation configInformation;
+    private final KillTrack killTrack;
+
+    public InformationCommand(ConfigInformation configInformation, KillTrack killTrack) {
+        this.configInformation = configInformation;
+        this.killTrack = killTrack;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, String[] strings) {

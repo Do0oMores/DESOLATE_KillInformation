@@ -9,6 +9,7 @@ import top.mores.PlayerListener.KillListener;
 import top.mores.PluginCommand.InformationCommand;
 import top.mores.Record.KillRecord;
 import top.mores.Record.KillTrack;
+import top.mores.Utils.ConfigInformation;
 import top.mores.Utils.NMS;
 import top.mores.Vault.VaultHandle;
 
@@ -43,12 +44,7 @@ public final class KillInformation extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
         }
         killTrack = new KillTrack(this);
-        NMS nms;
-        try {
-            nms = new NMS(this);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        ConfigInformation configInformation = new ConfigInformation();
         if (!configFile.exists()) {
             boolean isCreateDir = configFile.getParentFile().mkdirs();
             //添加一个文件夹创建判断
@@ -77,19 +73,19 @@ public final class KillInformation extends JavaPlugin {
         config = getConfigFile();
         KillListener killListener;
         try {
-            NMS nmsUtil = new NMS(this);
+            NMS nms = new NMS(this);
             KillRecord killRecord = new KillRecord();
-            Message message = new Message(nmsUtil);
-            killListener = new KillListener(message, killRecord);
+            Message message = new Message(nms);
+            killListener = new KillListener(message, killRecord, killTrack, configInformation);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         //注册监听器
-        getServer().getPluginManager().registerEvents(new KillListener(new Message(nms), new KillRecord()), this);
+        getServer().getPluginManager().registerEvents(killListener, this);
 
         //注册命令
-        InformationCommand commandExecutor = new InformationCommand();
+        InformationCommand commandExecutor = new InformationCommand(configInformation, killTrack);
         Objects.requireNonNull(getCommand("kf")).setExecutor(commandExecutor);
         Objects.requireNonNull(getCommand("kf")).setTabCompleter(commandExecutor);
         getLogger().info("KillMessage Enabled!");

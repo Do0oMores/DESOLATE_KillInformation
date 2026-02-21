@@ -168,4 +168,12 @@ public class ConfigInformation {
     public String getStatTrackSuccessTip() {
         return getConfig().getString("stattrack_success_tip");
     }
+
+    public String getErrorTempleTip(){
+        return getConfig().getString("error_temple_tip");
+    }
+
+    public String getErrorVaultReadyTip(){
+        return getConfig().getString("error_vault_ready_tip");
+    }
 }

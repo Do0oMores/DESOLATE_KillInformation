@@ -23,7 +23,6 @@ public class KillTrack {
 
     private final NamespacedKey KILL_KEY;
 
-    // 配置模板：lore_text: '已击杀： %kill_stat%'
     private final String loreTemplateRaw;
 
     public KillTrack(KillInformation plugin) {
@@ -36,7 +35,7 @@ public class KillTrack {
         this.configInformation = configInformation;
 
         this.KILL_KEY = new NamespacedKey(plugin, "kill_stat");
-        this.loreTemplateRaw = configInformation.getLoreMessage(); // 你必须实现这个读取 lore_text
+        this.loreTemplateRaw = configInformation.getLoreMessage();
     }
 
     /** 注册：写 NBT + 写/替换 Lore 展示行（不可重复注册） */
@@ -56,26 +55,26 @@ public class KillTrack {
             return;
         }
 
-        // 3) 你原逻辑：必须有 displayName
+        // 3)必须有 displayName
         if (!meta.hasDisplayName()) {
             player.sendMessage(ChatColorUtil.color(configInformation.getNotRegItemTip()));
             return;
         }
 
-        // 4) 模板检查：必须包含占位符
+        // 4) 模板检查
         if (loreTemplateRaw == null || loreTemplateRaw.isBlank() || !loreTemplateRaw.contains("%kill_stat%")) {
-            player.sendMessage(ChatColorUtil.color("&c配置错误：lore_text 必须包含 %kill_stat%"));
+            player.sendMessage(ChatColorUtil.color(configInformation.getErrorTempleTip()));
             plugin.getLogger().warning("Config error: lore_text is blank or missing %kill_stat%.");
             return;
         }
 
-        // 5) Vault 就绪检查（区分“没装/没初始化”和“钱不够”）
+        // 5) Vault 就绪检查
         if (!vaultHandle.isReady()) {
-            player.sendMessage(ChatColorUtil.color("&c经济系统未就绪（Vault/经济插件未加载），请联系管理员"));
+            player.sendMessage(ChatColorUtil.color(configInformation.getErrorVaultReadyTip()));
             return;
         }
 
-        // 6) 已注册检查：以 PDC 为准，彻底杜绝重复注册
+        // 6) 已注册检查
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         if (pdc.has(KILL_KEY, PersistentDataType.INTEGER)) {
             player.sendMessage(ChatColorUtil.color(configInformation.getItemRegedTip()));
@@ -93,15 +92,15 @@ public class KillTrack {
             newName = newName + configInformation.getItemStatTrackName();
         }
 
-        // 8) 可选：余额不足提前提示（体验更好）
+        // 8) 余额不足提示
         if (!vaultHandle.hasEnough(player)) {
             player.sendMessage(ChatColorUtil.color(configInformation.getVaultNotEnoughTip()));
             return;
         }
 
-        // 9) 最后一步：扣费
+        // 9) 扣费
         if (!vaultHandle.removePlayerVault(player)) {
-            // 可能是余额不足 / 经济插件拒绝交易
+            //可能是余额不足 / 经济插件拒绝交易
             player.sendMessage(ChatColorUtil.color(configInformation.getVaultNotEnoughTip()));
             return;
         }
@@ -178,7 +177,7 @@ public class KillTrack {
             foundIndex = lore.size() - 1;
         }
 
-        // 清理其它重复行（保证不会出现多条“已击杀...”）
+        // 清理其它重复行
         for (int i = lore.size() - 1; i >= 0; i--) {
             if (i == foundIndex) continue;
             String line = lore.get(i);

@@ -31,8 +31,8 @@ public class KillListener implements Listener {
                         ConfigInformation configInformation) {
         this.message = message;
         this.killRecord = killRecord;
-        this.killTrack = new KillTrack();
-        this.configInformation = new ConfigInformation();
+        this.killTrack = killTrack;
+        this.configInformation = configInformation;
     }
 
     @EventHandler

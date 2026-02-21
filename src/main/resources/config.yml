@@ -1,7 +1,18 @@
+#配置文件中可以使用的占位符
+# %killer% 击杀者
+# %player% 被击杀者
+# %weapon% 使用的武器
+# %killer_uuid% 击杀者UUID
+# %player_uuid% 被击杀者UUID
+# %kill_streak% 连杀次数
+
 # 控制击杀信息提示发送玩家范围（默认：true）
 # 若设置为false，则所有玩家都能收到击杀信息提示
 # 若设置为true，则只有在击杀者和被击杀者在同一个世界时，才会收到击杀信息提示
 send_to_same_world_only: true
+
+# 是否全局开启/关闭击杀提示
+enable_kill_tips: true
 
 # 启用stattrack需要的经济数量（默认：1000）
 kill_track_cost: 1000
@@ -10,18 +21,7 @@ kill_track_cost: 1000
 kill_streak_interval: 30
 
 # 武器lore击杀记录文本（默认：已击杀）
-lore_text: 已击杀
-
-# 武器击杀数增加提示信息(支持使用"&"替代"§")
-kill_count_increase_message: "&d[%weapon%&d] &c已击杀&7-&f%amount%"
-
-# 击杀提示，支持多行随机
-kill_messages:
-  - "&a%killer% &r%weapon%&r &c%player%"
-  - "&a%killer% &r使用 %weapon% &r抹除了 &c%player%"
-
-# 连杀提示消息
-kill_streak_message: "&c[连杀提示] &e%killer% &a已经连续造成 &c%kill_streak% &a次杀戮!"
+lore_text: '已击杀：%kill_stat%'
 
 # 击杀时执行的命令列表
 kill_commands: []
@@ -34,10 +34,21 @@ kill_streak_commands:
   10: []
   20: []
 
-#配置文件中可以使用的占位符
-# %killer% 击杀者
-# %player% 被击杀者
-# %weapon% 使用的武器
-# %killer_uuid% 击杀者UUID
-# %player_uuid% 被击杀者UUID
-# %kill_streak% 连杀次数
+#物品stattrack显示名
+item_statTrack_name: '(StatTrack)'
+
+#以下是提示信息(支持使用"&"替代"§")
+# 武器击杀数增加提示信息
+kill_count_increase_message: '&d[%weapon%&d] &c已击杀&7-&f%amount%'
+# 连杀提示消息
+kill_streak_message: "&c[连杀提示] &e%killer% &a已经连续造成 &c%kill_streak% &a次杀戮!"
+# 击杀提示，支持多行随机
+kill_messages:
+  - '&a%killer% &r%weapon%&r &c%player%'
+  - '&a%killer% &r使用 %weapon% &r抹除了 &c%player%'
+stattrack_reg_tip: '请将需要注册击杀追踪的物品放到主手'
+re_reg_stattrack_tip: '该物品没有检测到任何标签内容，是否确定注册？请再次输入指令进行注册！'
+not_reg_item_tip: '该物品未在服务器内注册！'
+item_reged_tip: '该物品已注册击杀记录!'
+vault_insufficient_tip: '&a没有足够的金币'
+stattrack_success_tip: '击杀记录已更新并替换手中的物品'

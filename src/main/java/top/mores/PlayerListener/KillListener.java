@@ -25,7 +25,10 @@ public class KillListener implements Listener {
     private final KillTrack killTrack;
     private final ConfigInformation configInformation;
 
-    public KillListener(Message message, KillRecord killRecord) {
+    public KillListener(Message message,
+                        KillRecord killRecord,
+                        KillTrack killTrack,
+                        ConfigInformation configInformation) {
         this.message = message;
         this.killRecord = killRecord;
         this.killTrack = new KillTrack();
@@ -36,36 +39,34 @@ public class KillListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
         UUID victimUUID = victim.getUniqueId();
-        
+
         // 重置被击杀玩家的连杀记录
         killStreaks.remove(victimUUID);
-        
+
         Player killer = victim.getKiller();
         if (killer != null) {
             // 更新击杀追踪数据
             killTrack.addKillAmount(killer);
-            
+
             // 更新连杀记录
             KillStreak streak = updateKillStreak(killer);
-            
+
             // 获取击杀者手中的武器
             ItemStack weapon = killer.getInventory().getItemInMainHand();
-            
+
             // 更新玩家数据
             killRecord.updatePlayerData(killer, weapon);
-            
-            // 发送击杀消息
-            message.SendNormalMessages(weapon, victim, killer);
-            
-            // 播放音效
-            killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 1F);
-            
-            // 发送动作栏消息
-            message.sendActionbar(victim, killer);
 
-            // 执行击杀命令（无论是否连杀都应该执行）
             executeKillCommands(killer, victim, weapon);
 
+            if (configInformation.getEnableKillTips()) {
+                // 发送击杀消息
+                message.SendNormalMessages(weapon, victim, killer);
+                // 播放音效
+                killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 1F);
+                // 发送动作栏消息
+                message.sendActionbar(victim, killer);
+            }
             // 检查是否为连杀
             if (streak.getKillCount() >= 2) {
                 handleKillStreak(killer, victim, weapon, streak);
@@ -91,7 +92,7 @@ public class KillListener implements Listener {
 
         KillStreak streak = killStreaks.getOrDefault(killerUUID, new KillStreak(0, currentTime));
         long streakTimeout = configInformation.getKillTick() * 1000L;
-        
+
         if (currentTime - streak.getLastKillTime() <= streakTimeout) {
             streak.incrementKills();
         } else {
@@ -100,22 +101,22 @@ public class KillListener implements Listener {
 
         streak.setLastKillTime(currentTime);
         killStreaks.put(killerUUID, streak);
-        
+
         return streak;
     }
 
     /**
      * 处理连杀事件
      *
-     * @param killer   击杀者
-     * @param victim   被击杀者
-     * @param weapon   武器
-     * @param streak   连杀记录
+     * @param killer 击杀者
+     * @param victim 被击杀者
+     * @param weapon 武器
+     * @param streak 连杀记录
      */
     private void handleKillStreak(Player killer, Player victim, ItemStack weapon, KillStreak streak) {
         // 发送连杀提示给同世界的所有玩家
         sendKillStreakMessage(killer, streak.getKillCount());
-        
+
         // 执行连杀命令
         executeKillStreakCommands(killer, victim, weapon, streak.getKillCount());
     }

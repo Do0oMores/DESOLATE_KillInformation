@@ -8,15 +8,15 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import top.mores.Utils.ConfigInformation;
 
 public class VaultHandle {
-    ConfigInformation config = new ConfigInformation();
-
+    private final ConfigInformation config = new ConfigInformation();
     private static Economy economy;
 
     public static boolean setupEconomy() {
         if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
-        RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        RegisteredServiceProvider<Economy> rsp =
+                Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
             return false;
         }
@@ -24,9 +24,21 @@ public class VaultHandle {
         return true;
     }
 
+    public boolean isReady() {
+        return economy != null;
+    }
+
+    public double getCost() {
+        return config.getKillTrackValue();
+    }
+
+    public boolean hasEnough(Player player) {
+        return isReady() && economy.has(player, getCost());
+    }
+
     public boolean removePlayerVault(Player player) {
-        if (economy == null) return false;
-        EconomyResponse resp = economy.withdrawPlayer(player, config.getKillTrackValue());
+        if (!isReady()) return false;
+        EconomyResponse resp = economy.withdrawPlayer(player, getCost());
         return resp.transactionSuccess();
     }
 }

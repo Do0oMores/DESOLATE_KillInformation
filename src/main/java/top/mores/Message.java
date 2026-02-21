@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import top.mores.Utils.ChatColorUtil;
 import top.mores.Utils.ConfigInformation;
 import top.mores.Utils.NMS;
 
@@ -37,10 +38,7 @@ public class Message {
             return;
         }
 
-        String messageTemplate = configInformation.getKillMessage();
-        
-        // 解析颜色代码
-        messageTemplate = ChatColor.translateAlternateColorCodes('&', messageTemplate);
+        String messageTemplate = ChatColorUtil.color(configInformation.getKillMessage());
 
         String playerName = player.getName();
         String killerName = killer.getName();

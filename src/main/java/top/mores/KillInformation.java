@@ -1,5 +1,6 @@
 package top.mores;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import top.mores.PlayerListener.KillListener;
 import top.mores.PluginCommand.InformationCommand;
 import top.mores.Record.KillRecord;
+import top.mores.Record.KillTrack;
 import top.mores.Utils.NMS;
 import top.mores.Vault.VaultHandle;
 
@@ -22,6 +24,7 @@ public final class KillInformation extends JavaPlugin {
     private static KillInformation instance;
     private File dataFile;
     private FileConfiguration dataConfig;
+    private KillTrack killTrack;
 
     @Override
     public void onEnable() {
@@ -29,6 +32,23 @@ public final class KillInformation extends JavaPlugin {
         //加载配置文件
         configFile = new File(getDataFolder(), "config.yml");
 
+        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            if (!VaultHandle.setupEconomy()) {
+                getLogger().severe("Failed to setup economy!");
+                getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
+        } else {
+            getLogger().warning("Could not find Vault! This plugin is required.");
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+        killTrack = new KillTrack(this);
+        NMS nms;
+        try {
+            nms = new NMS(this);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         if (!configFile.exists()) {
             boolean isCreateDir = configFile.getParentFile().mkdirs();
             //添加一个文件夹创建判断
@@ -51,11 +71,6 @@ public final class KillInformation extends JavaPlugin {
         }
         reloadDataFile();
 
-        if (!VaultHandle.setupEconomy()) {
-            getLogger().severe("Failed to setup economy!");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
         //获取版本
         mcVersion = Integer.parseInt(getServer().getBukkitVersion().replace('-', '.').split("\\.")[1]);
         //初始化配置文件
@@ -71,7 +86,7 @@ public final class KillInformation extends JavaPlugin {
         }
 
         //注册监听器
-        getServer().getPluginManager().registerEvents(killListener, this);
+        getServer().getPluginManager().registerEvents(new KillListener(new Message(nms), new KillRecord()), this);
 
         //注册命令
         InformationCommand commandExecutor = new InformationCommand();
@@ -90,7 +105,7 @@ public final class KillInformation extends JavaPlugin {
     }
 
     public @NotNull FileConfiguration getConfigFile() {
-        if (config==null){
+        if (config == null) {
             reloadConfigFile();
         }
         return config;

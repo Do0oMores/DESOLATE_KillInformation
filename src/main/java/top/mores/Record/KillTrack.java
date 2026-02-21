@@ -1,10 +1,14 @@
 package top.mores.Record;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import top.mores.KillInformation;
+import top.mores.Utils.ChatColorUtil;
 import top.mores.Utils.ConfigInformation;
 import top.mores.Vault.VaultHandle;
 
@@ -13,104 +17,182 @@ import java.util.List;
 
 public class KillTrack {
 
-    VaultHandle vaultHandle = new VaultHandle();
-    static ConfigInformation configInformation = new ConfigInformation();
-    static String loreMessage = configInformation.getLoreMessage();
+    private final KillInformation plugin;
+    private final VaultHandle vaultHandle;
+    private final ConfigInformation configInformation;
 
+    private final NamespacedKey KILL_KEY;
+
+    // 配置模板：lore_text: '已击杀： %kill_stat%'
+    private final String loreTemplateRaw;
+
+    public KillTrack(KillInformation plugin) {
+        this(plugin, new VaultHandle(), new ConfigInformation());
+    }
+
+    public KillTrack(KillInformation plugin, VaultHandle vaultHandle, ConfigInformation configInformation) {
+        this.plugin = plugin;
+        this.vaultHandle = vaultHandle;
+        this.configInformation = configInformation;
+
+        this.KILL_KEY = new NamespacedKey(plugin, "kill_stat");
+        this.loreTemplateRaw = configInformation.getLoreMessage(); // 你必须实现这个读取 lore_text
+    }
+
+    /** 注册：写 NBT + 写/替换 Lore 展示行（不可重复注册） */
     public void initItemLore(Player player) {
-        ItemStack itemStack = player.getInventory().getItemInOffHand();
-        if (itemStack.getType().equals(Material.AIR)) {
-            player.sendMessage("请将需要注册击杀追踪的物品放到副手");
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        // 1) 主手检查
+        if (item == null || item.getType() == Material.AIR) {
+            player.sendMessage(ChatColorUtil.color(configInformation.getStatTrackRegTip()));
             return;
         }
-        ItemMeta meta = itemStack.getItemMeta();
+
+        // 2) meta 检查
+        ItemMeta meta = item.getItemMeta();
         if (meta == null) {
-            player.sendMessage("该物品没有检测到任何标签内容，是否确定注册？请再次输入指令进行注册！");
+            player.sendMessage(ChatColorUtil.color(configInformation.getReRegStatTrackTip()));
             return;
         }
+
+        // 3) 你原逻辑：必须有 displayName
         if (!meta.hasDisplayName()) {
-            player.sendMessage("该物品未在服务器内注册！");
+            player.sendMessage(ChatColorUtil.color(configInformation.getNotRegItemTip()));
             return;
         }
-        List<String> itemLore = getStrings(meta);
-        if (itemLore == null) {
-            player.sendMessage("该物品已注册击杀记录！");
+
+        // 4) 模板检查：必须包含占位符
+        if (loreTemplateRaw == null || loreTemplateRaw.isBlank() || !loreTemplateRaw.contains("%kill_stat%")) {
+            player.sendMessage(ChatColorUtil.color("&c配置错误：lore_text 必须包含 %kill_stat%"));
+            plugin.getLogger().warning("Config error: lore_text is blank or missing %kill_stat%.");
             return;
         }
-        if (vaultHandle.removePlayerVault(player)) {
-            String itemName = meta.getDisplayName();
-            if (!itemName.endsWith("(StatTrack)")) {
-                meta.setDisplayName(itemName + "(StatTrack)");
-            }
-            meta.setLore(itemLore);
-            itemStack.setItemMeta(meta);
-            player.getInventory().setItemInOffHand(itemStack);
-            player.sendMessage(ChatColor.GREEN + "击杀记录已更新并替换手中的物品！");
-        } else {
-            player.sendMessage(ChatColor.RED + "没有足够的金币");
+
+        // 5) Vault 就绪检查（区分“没装/没初始化”和“钱不够”）
+        if (!vaultHandle.isReady()) {
+            player.sendMessage(ChatColorUtil.color("&c经济系统未就绪（Vault/经济插件未加载），请联系管理员"));
+            return;
+        }
+
+        // 6) 已注册检查：以 PDC 为准，彻底杜绝重复注册
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        if (pdc.has(KILL_KEY, PersistentDataType.INTEGER)) {
+            player.sendMessage(ChatColorUtil.color(configInformation.getItemRegedTip()));
+            return;
+        }
+
+        // 7) 扣费前先“预构造”要写入的内容，确保不会因为 lore/null 出错
+        List<String> lore = meta.hasLore() ? meta.getLore() : null;
+        if (lore == null) lore = new ArrayList<>();
+        setOrAppendKillLoreLine(lore, 0);
+
+        String newName = meta.getDisplayName();
+        if (newName == null) newName = "";
+        if (!newName.endsWith(configInformation.getItemStatTrackName())) {
+            newName = newName + configInformation.getItemStatTrackName();
+        }
+
+        // 8) 可选：余额不足提前提示（体验更好）
+        if (!vaultHandle.hasEnough(player)) {
+            player.sendMessage(ChatColorUtil.color(configInformation.getVaultNotEnoughTip()));
+            return;
+        }
+
+        // 9) 最后一步：扣费
+        if (!vaultHandle.removePlayerVault(player)) {
+            // 可能是余额不足 / 经济插件拒绝交易
+            player.sendMessage(ChatColorUtil.color(configInformation.getVaultNotEnoughTip()));
+            return;
+        }
+
+        // 10) 落盘：写 NBT + 写 Lore/Name（尽量不失败）
+        try {
+            pdc.set(KILL_KEY, PersistentDataType.INTEGER, 0);
+            meta.setDisplayName(newName);
+            meta.setLore(lore);
+
+            item.setItemMeta(meta);
+            player.getInventory().setItemInMainHand(item);
+
+            player.sendMessage(ChatColorUtil.color(configInformation.getStatTrackSuccessTip()));
+        } catch (Exception ex) {
+            plugin.getLogger().severe("KillTrack register failed AFTER withdraw. Player=" + player.getName());
+            ex.printStackTrace();
+            player.sendMessage(ChatColorUtil.color("&c注册失败：可能已扣费，请联系管理员补偿。"));
         }
     }
 
-    private static List<String> getStrings(ItemMeta meta) {
-        List<String> itemLore = meta.getLore();
-        if (itemLore == null) {
-            itemLore = new ArrayList<>();
-            itemLore.add(loreMessage + "：0");
-        } else {
-            for (String lore : itemLore) {
-                if (lore.startsWith(loreMessage)) {
-                    return null;
-                }
-            }
-            boolean foundLore = false;
-            for (int i = 0; i < itemLore.size(); i++) {
-                String lore = itemLore.get(i);
-                if (lore.equals("lore")) {
-                    itemLore.set(i, loreMessage + "：0");
-                    foundLore = true;
-                    break;
-                }
-            }
-            if (!foundLore) {
-                itemLore.add(loreMessage + "：0");
-            }
-        }
-        return itemLore;
-    }
-
+    /** 击杀 +1：只读写 NBT，然后刷新 Lore 展示行 */
     public void addKillAmount(Player player) {
-        ItemStack itemStack = player.getInventory().getItemInMainHand();
-        if (itemStack.getType().equals(Material.AIR)) {
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (item == null || item.getType() == Material.AIR) return;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+
+        if (loreTemplateRaw == null || loreTemplateRaw.isBlank() || !loreTemplateRaw.contains("%kill_stat%")) {
             return;
         }
 
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null || !meta.hasLore()) {
-            return;
-        }
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        Integer kill = pdc.get(KILL_KEY, PersistentDataType.INTEGER);
+        if (kill == null) return; // 未注册追踪，忽略
 
-        List<String> itemLore = meta.getLore();
-        if (itemLore == null) {
-            return;
-        }
+        int newKill = kill + 1;
 
-        for (int i = 0; i < itemLore.size(); i++) {
-            String lore = itemLore.get(i);
-            if (lore.startsWith(loreMessage + "：")) {
-                try {
-                    String killCountStr = lore.substring(loreMessage.length() + 1).trim();
-                    int killCount = Integer.parseInt(killCountStr);
-                    killCount++;
-                    itemLore.set(i, loreMessage + "：" + killCount);
-                    meta.setLore(itemLore);
-                    itemStack.setItemMeta(meta);
-                    player.getInventory().setItemInMainHand(itemStack);
-                    return;
-                } catch (NumberFormatException e) {
-                    player.sendMessage("无法解析击杀数，请联系管理员");
-                    return;
-                }
+        List<String> lore = meta.hasLore() ? meta.getLore() : null;
+        if (lore == null) lore = new ArrayList<>();
+        setOrAppendKillLoreLine(lore, newKill);
+
+        try {
+            pdc.set(KILL_KEY, PersistentDataType.INTEGER, newKill);
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+            player.getInventory().setItemInMainHand(item);
+        } catch (Exception ex) {
+            plugin.getLogger().warning("KillTrack addKillAmount failed: " + ex.getMessage());
+        }
+    }
+
+    /** 替换/追加 kill lore 行；并清理重复统计行 */
+    private void setOrAppendKillLoreLine(List<String> lore, int kill) {
+        String newLine = buildLoreColored(kill);
+        String prefix = getTemplatePrefixColored();
+
+        int foundIndex = -1;
+
+        for (int i = 0; i < lore.size(); i++) {
+            String line = lore.get(i);
+            if (line == null) continue;
+
+            if (line.equalsIgnoreCase("lore") || line.startsWith(prefix)) {
+                foundIndex = i;
+                lore.set(i, newLine);
+                break;
             }
         }
+
+        if (foundIndex == -1) {
+            lore.add(newLine);
+            foundIndex = lore.size() - 1;
+        }
+
+        // 清理其它重复行（保证不会出现多条“已击杀...”）
+        for (int i = lore.size() - 1; i >= 0; i--) {
+            if (i == foundIndex) continue;
+            String line = lore.get(i);
+            if (line != null && line.startsWith(prefix)) {
+                lore.remove(i);
+            }
+        }
+    }
+
+    private String buildLoreColored(int kill) {
+        return ChatColorUtil.color(loreTemplateRaw.replace("%kill_stat%", String.valueOf(kill)));
+    }
+
+    private String getTemplatePrefixColored() {
+        return ChatColorUtil.color(loreTemplateRaw.replace("%kill_stat%", ""));
     }
 }

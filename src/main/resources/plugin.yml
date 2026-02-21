@@ -1,9 +1,10 @@
 name: DESOLATE_KillInformation
-version: '1.1'
+version: '1.3'
 main: top.mores.KillInformation
 api-version: '1.18'
-authors: [ Mores, Harry_H2O ]
+authors: [ Mores ]
 description: 击杀信息
+softdepend: ["Vault"]
 commands:
   kf:
     description: KillInformation Command

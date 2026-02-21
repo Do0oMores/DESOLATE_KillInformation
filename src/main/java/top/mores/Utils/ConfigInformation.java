@@ -10,7 +10,7 @@ import java.util.*;
 
 public class ConfigInformation {
 
-    private FileConfiguration getConfig(){
+    private FileConfiguration getConfig() {
         return KillInformation.getInstance().getConfigFile();
     }
 
@@ -53,32 +53,32 @@ public class ConfigInformation {
         return ListMessage;
     }
 
-    public int getKillTrackValue(){
+    public int getKillTrackValue() {
         return getConfig().getInt("kill_track_cost");
     }
 
-    public int getKillTick(){
+    public int getKillTick() {
         return getConfig().getInt("kill_streak_interval");
     }
 
-    public String getLoreMessage(){
-        return getConfig().getString("lore_text");
+    public String getLoreMessage() {
+        return getConfig().getString("lore_text", "已击杀：%kill_stat%");
     }
 
-    public List<String> getKillMessageList(){
+    public List<String> getKillMessageList() {
         return getConfig().getStringList("kill_messages");
     }
 
-    public String getAddKillMessage(){
+    public String getAddKillMessage() {
         return getConfig().getString("kill_count_increase_message");
     }
 
-    public String getKillMessage(){
-        List<String> messageList=getKillMessageList();
+    public String getKillMessage() {
+        List<String> messageList = getKillMessageList();
         Collections.shuffle(messageList);
         return messageList.get(0);
     }
-    
+
     public String getKillStreakMessage() {
         String message = getConfig().getString("kill_streak_message");
         if (message == null || message.isEmpty()) {
@@ -91,18 +91,18 @@ public class ConfigInformation {
     public List<String> getKillCommands() {
         return getConfig().getStringList("kill_commands");
     }
-    
+
     // 新增方法：获取格式化后的击杀命令列表
     public List<String> getFormattedKillCommands(Player killer, Player victim, ItemStack weapon) {
         List<String> commands = getKillCommands();
         List<String> formattedCommands = new ArrayList<>();
-        
+
         for (String command : commands) {
             // 为击杀命令添加占位符替换
             String formattedCommand = PlaceholderUtil.replacePlaceholders(command, killer, victim, weapon, null);
             formattedCommands.add(formattedCommand);
         }
-        
+
         return formattedCommands;
     }
 
@@ -115,25 +115,57 @@ public class ConfigInformation {
                 closestStreak = streak;
             }
         }
-        
+
         if (closestStreak > 0) {
             return getConfig().getStringList("kill_streak_commands." + closestStreak);
         }
-        
+
         return new ArrayList<>();
     }
 
-    // 新增方法：获取格式化后的连杀命令列表
+    // 获取格式化后的连杀命令列表
     public List<String> getFormattedKillStreakCommands(Player killer, Player victim, ItemStack weapon, int killStreak) {
         List<String> commands = getKillStreakCommands(killStreak);
         List<String> formattedCommands = new ArrayList<>();
-        
+
         for (String command : commands) {
             // 为连杀命令添加占位符替换
             String formattedCommand = PlaceholderUtil.replacePlaceholders(command, killer, victim, weapon, killStreak);
             formattedCommands.add(formattedCommand);
         }
-        
+
         return formattedCommands;
+    }
+
+    public boolean getEnableKillTips() {
+        return getConfig().getBoolean("enable_kill_tips");
+    }
+
+    public String getItemStatTrackName() {
+        return getConfig().getString("item_statTrack_name");
+    }
+
+    public String getStatTrackRegTip() {
+        return getConfig().getString("stattrack_reg_tip");
+    }
+
+    public String getReRegStatTrackTip() {
+        return getConfig().getString("re_reg_stattrack_tip");
+    }
+
+    public String getNotRegItemTip() {
+        return getConfig().getString("not_reg_item_tip");
+    }
+
+    public String getItemRegedTip() {
+        return getConfig().getString("item_reged_tip");
+    }
+
+    public String getVaultNotEnoughTip() {
+        return getConfig().getString("vault_insufficient_tip");
+    }
+
+    public String getStatTrackSuccessTip() {
+        return getConfig().getString("stattrack_success_tip");
     }
 }

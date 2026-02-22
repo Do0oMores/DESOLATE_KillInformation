@@ -9,7 +9,6 @@
 
 <details><summary><b>击杀提示</b></summary>
 
-<img src="src/main/resources/img/img.png" alt="kill tips example">
 
 - 可自定义全服提示或仅在当前世界提示：`只给相同世界的玩家发送信息`
 > 鼠标悬浮在物品上可显示物品详细信息
@@ -24,9 +23,6 @@
 </details>
 
 <details><summary><b>物品击杀追踪</b></summary>
-<p align="center">
-<img src="src/main/resources/img/img_1.png" alt="item kill track example" height="300">
-</p>
 
 - 记录物品的击杀数并显示
 - 将物品放到副手使用命令 `/kf killtrack` 花费经济对该物品启用击杀追踪
